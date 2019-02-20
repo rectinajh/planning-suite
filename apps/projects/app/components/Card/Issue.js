@@ -48,9 +48,9 @@ const Issue = ({
         </Text>
       </div>
 
-      <IssueDetails>
+      { (balance > 0 || labels.totalCount > 0) && <IssueDetails>
         <Text size="small" color={theme.textTertiary}>
-          { balance > 0 && <span>
+          { balance > 0 && <span style={{ marginRight: '15px'}}>
             {expLevel}
             {dot}
             {ETADistance(dueDate)}
@@ -62,7 +62,7 @@ const Issue = ({
             labels.edges.map(label =>
               <Badge
                 key={label.node.id}
-                style={{ marginLeft: '15px'}}
+                style={{ marginRight: '10px'}}
                 background={'#'+label.node.color}
                 foreground={'#000'}>{label.node.name}
               </Badge>
@@ -70,6 +70,7 @@ const Issue = ({
           }        
         </Text>
       </IssueDetails>
+      }
     </IssueDesc>
 
     <BalanceAndContext>
