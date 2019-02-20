@@ -2,9 +2,113 @@ import PropTypes from 'prop-types'
 import React from 'react'
 import styled from 'styled-components'
 import { Text, theme, Badge, Button, ContextMenu, ContextMenuItem } from '@aragon/ui'
+import { formatDistance } from 'date-fns'
 
 import { CheckButton } from '../Shared'
 
+
+// TODO: @aragon/ui Table?
+// TODO: connect real data
+
+const ETADistance = date => formatDistance(new Date(date), new Date())
+
+const dot = <span style={{ margin: '0px 10px' }}>&middot;</span>
+
+const Issue = ({
+  title,
+  repo,
+  number,
+  labels,
+  isSelected,
+  onSelect,
+  onSubmitWork,
+  onRequestAssignment,
+  onReviewApplication,
+  onAllocateSingleBounty,
+  balance,
+  symbol,
+  expLevel = 'Intermediate',
+  dueDate = '02/02/2020',
+  funded = 'Pending funding'
+}) => (
+  <StyledIssue>
+    <CheckButton checked={isSelected} onChange={onSelect} />
+
+    <IssueDesc>
+
+      <div>
+        <Text color={theme.textPrimary} size="xlarge">
+          {title}
+        </Text>
+
+        {dot}
+
+        <Text color={theme.textSecondary} size="large">
+          {repo} #{number}
+        </Text>
+      </div>
+
+      <IssueDetails>
+        <Text size="small" color={theme.textTertiary}>
+          { balance > 0 && <span>
+            {expLevel}
+            {dot}
+            {ETADistance(dueDate)}
+            {dot}
+            {funded}
+          </span>
+          }
+          { labels.totalCount ? (
+            labels.edges.map(label =>
+              <Badge
+                key={label.node.id}
+                style={{ marginLeft: '15px'}}
+                background={'#'+label.node.color}
+                foreground={'#000'}>{label.node.name}
+              </Badge>
+            )) : ''
+          }        
+        </Text>
+      </IssueDetails>
+    </IssueDesc>
+
+    <BalanceAndContext>
+      { balance > 0 &&  
+        <Badge
+          style={{padding: '10px', marginRight: '20px', textSize: 'large'}}
+          background={'#e7f8ec'}
+          foreground={theme.positive}>{balance + ' ' + symbol}
+        </Badge>
+      }
+      <ContextMenu>
+        <ContextMenuItem onClick={onAllocateSingleBounty}>
+          <ActionLabel>Allocate Bounty</ActionLabel>
+        </ContextMenuItem>
+        <ContextMenuItem onClick={onSubmitWork}>
+          <ActionLabel>Submit Work</ActionLabel>
+        </ContextMenuItem>
+        <ContextMenuItem onClick={onRequestAssignment}>
+          <ActionLabel>Request Assignment</ActionLabel>
+        </ContextMenuItem>
+        <ContextMenuItem onClick={onReviewApplication}>
+          <ActionLabel>Review Application</ActionLabel>
+        </ContextMenuItem>
+      </ContextMenu>
+    </BalanceAndContext>
+  </StyledIssue>
+)
+
+Issue.propTypes = {
+  title: PropTypes.string.isRequired,
+  repo: PropTypes.string.isRequired,
+  number: PropTypes.number.isRequired,
+  isSelected: PropTypes.bool,
+  onSelect: PropTypes.func,
+}
+
+const ActionLabel = styled.span`
+  margin-left: 15px;
+`
 const StyledIssue = styled.div`
   //overflow-y: hidden;
   flex: 1;
@@ -30,88 +134,17 @@ const StyledIssue = styled.div`
 const IssueDetails = styled.div`
   display: flex;
 `
-
-// TODO: @aragon/ui Table?
-const Issue = ({ title, repo, number, labels, isSelected, onSelect, onSubmitWork, onRequestAssignment, onReviewApplication, onAllocateSingleBounty, balance, symbol }) => (
-  <StyledIssue>
-    <CheckButton checked={isSelected} onChange={onSelect} />
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'space-around',
-        height: '90px',
-        flex: '1',
-      }}
-    >
-      <div>
-        <Text
-          color={theme.textPrimary}
-          size="large"
-          style={{ marginRight: '5px' }}
-        >
-          {title}
-        </Text>
-      </div>
-      <IssueDetails>
-        <Text color={theme.textSecondary}>
-          {repo} #{number}
-        </Text>
-        <Text size="small" color={theme.textTertiary}>
-          { labels.totalCount ? (
-            labels.edges.map(label =>
-              <Badge
-                key={label.node.id}
-                style={{ marginLeft: '5px'}}
-                background={'#'+label.node.color}
-                foreground={'#000'}>{label.node.name}
-              </Badge>
-            )) : ''
-          }        
-        </Text>
-      </IssueDetails>
-    </div>
-    <div style={{ marginRight: '20px', display: 'inline-flex' }}>
-      { balance > 0 &&  
-        <Badge
-          style={{padding: '10px', marginRight: '20px', textSize: 'large'}}
-          background={'#e7f8ec'}
-          foreground={theme.positive}>{balance + ' ' + symbol}
-        </Badge>
-        
-      }
-      <ContextMenu>
-        <ContextMenuItem onClick={onAllocateSingleBounty}>
-          <ActionLabel>Allocate Bounty</ActionLabel>
-        </ContextMenuItem>
-        <ContextMenuItem onClick={onSubmitWork}>
-          <ActionLabel>Submit Work</ActionLabel>
-        </ContextMenuItem>
-        <ContextMenuItem onClick={onRequestAssignment}>
-          <ActionLabel>Request Assignment</ActionLabel>
-        </ContextMenuItem>
-        <ContextMenuItem onClick={onReviewApplication}>
-          <ActionLabel>Review Application</ActionLabel>
-        </ContextMenuItem>
-      </ContextMenu>
-    </div>
-  </StyledIssue>
-)
-
-Issue.propTypes = {
-  title: PropTypes.string.isRequired,
-  repo: PropTypes.string.isRequired,
-  number: PropTypes.number.isRequired,
-  isSelected: PropTypes.bool,
-  onSelect: PropTypes.func,
-}
-
-const ActionLabel = styled.span`
-  margin-left: 15px;
+const IssueDesc = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  height: 90px;
 `
-const MenuContainer = styled.div`
-  align-self: flex-end;
-  align-items: center;
+const BalanceAndContext = styled.div`
+  margin-right: 20px;
+  display: inline-flex;
 `
+
+
 
 export default Issue
